@@ -1,4 +1,5 @@
 import { decoder } from "./decoder";
+import axios from "axios";
 
 export async function request(
   ownerRepo: string,
@@ -6,21 +7,19 @@ export async function request(
   token: string
 ): Promise<any[] | any | Error> {
   try {
-    const response = await fetch(
-      `http://api.github.com/repos/${ownerRepo}/contents${path}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "User-Agent": "MyApp",
-        },
-      }
-    );
-    if (!response.ok) {
+    const response = await axios.request({
+      url: `http://api.github.com/repos/${ownerRepo}/contents${path}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "User-Agent": "MyApp",
+      },
+    });
+    if (response.status !== 200) {
       throw new Error(
-        `GitHub API responded with status ${response.status}: ${response.statusText}\n${response.url}`
+        `GitHub API responded with status ${response.status}: ${response.statusText}`
       );
     }
-    const data = await response.json();
+    const data = await response.data;
     return data;
   } catch (error) {
     console.log(error);
