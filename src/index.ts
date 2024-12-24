@@ -16,13 +16,14 @@ const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.post("/api/extract", async (req: Request, res: Response) => {
   try {
-    const { path, url, token }: TExtract = req.body;
+    const { path, url, token, skipPaths }: TExtract = req.body;
     const ownerRepo = url.replace("https://github.com/", "");
     const data = await request(ownerRepo, path, token);
     const results: Map<string, string> | Error = await extractCode(
       ownerRepo,
       data,
-      token
+      token,
+      skipPaths
     );
     if (results instanceof Error) {
       throw new Error(results.message);

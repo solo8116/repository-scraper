@@ -31,11 +31,15 @@ export async function extractCode(
   ownerRepo: string,
   data: any[],
   token: string,
+  skipPaths?: string[],
   code: Map<string, string> = new Map()
 ): Promise<Map<string, string> | Error> {
   try {
     await Promise.all(
       data.map(async (item) => {
+        if (skipPaths?.includes(item.path)) {
+          return;
+        }
         if (item.type === "file") {
           const fileData: any = await request(
             ownerRepo,
@@ -48,7 +52,7 @@ export async function extractCode(
           }
         } else if (item.type === "dir") {
           const dirData = await request(ownerRepo, "/" + item.path, token);
-          await extractCode(ownerRepo, dirData, token, code);
+          await extractCode(ownerRepo, dirData, token, skipPaths, code);
         }
       })
     );
